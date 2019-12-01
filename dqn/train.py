@@ -27,6 +27,7 @@ class DQNTrainer:
 
         self.max_neg_step = 100
         self.neg_reward_cnt = 0
+        self.punishment = -20.0
 
     def run(self):
         state = torch.tensor(self.environment.reset(),
@@ -55,8 +56,13 @@ class DQNTrainer:
                 self.neg_reward_cnt += 1
             else:
                 self.neg_reward_cnt = 0
-                done = done or (self.neg_reward_cnt > self.max_neg_step)
+
             total_reward += reward
+                        
+            if self.neg_reward_cnt > self.max_neg_step:
+                total_reward += punishment
+                done = True
+    
             if done:
                 state = torch.tensor(self.environment.reset(),
                                      device=self.device,
