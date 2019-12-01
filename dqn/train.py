@@ -53,6 +53,8 @@ class DQNTrainer:
             state = next_state
             if reward < 0:
                 self.neg_reward_cnt += 1
+            else:
+                self.neg_reward_cnt = 0
                 done = done or (self.neg_reward_cnt > self.max_neg_step)
             total_reward += reward
             if done:
