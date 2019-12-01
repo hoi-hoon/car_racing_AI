@@ -8,6 +8,7 @@ from dqn.replay_memory import ReplayMemory
 from dqn.environment_wrapper import EnvironmentWrapper
 from matplotlib import pyplot as plt
 import csv
+import time
 
 class DQNTrainer:
     def __init__(self, params, model_path):
@@ -24,6 +25,9 @@ class DQNTrainer:
         env = gym.make('CarRacing-v0')
         self.environment = EnvironmentWrapper(env, self.params.skip_steps)
 
+        self.max_neg_step = 100
+        self.neg_reward_cnt = 0
+
     def run(self):
         state = torch.tensor(self.environment.reset(),
                              device=self.device,
@@ -33,7 +37,7 @@ class DQNTrainer:
         total_reward = 0
         episode = 1
         plt.figure()
-
+        start_time = time.time()
         for step in range(int(self.params.num_of_steps)):
             q_value = self.current_q_net(torch.stack([state]))
             action_index, action = get_action(q_value,
@@ -47,6 +51,9 @@ class DQNTrainer:
                                       dtype=torch.float32)
             self.replay_memory.add(state, action_index, reward, next_state, done)
             state = next_state
+            if reward < 0:
+                self.neg_reward_cnt += 1
+                done = done or (self.neg_reward_cnt > self.max_neg_step)
             total_reward += reward
             if done:
                 state = torch.tensor(self.environment.reset(),
@@ -54,20 +61,22 @@ class DQNTrainer:
                                      dtype=torch.float32)
                 plot[0].append(episode)
                 plot[1].append(total_reward)
-                episode += 1
                 plt.plot(plot[0], plot[1])
-                plt.savefig('../drive/My Drive/reward_plot.png')
-                csv_file = open("../drive/My Drive/reward_csv.csv", "w", newline="\n")
+                plt.savefig('../drive/My Drive/reward_plot_hueristic.png')
+                csv_file = open("../drive/My Drive/reward_csv_hueristic.csv", "w", newline="\n")
                 csv_writer = csv.writer(csv_file)
                 csv_writer.writerow(plot[1])
                 csv_file.close()
-                print("An episode is over. Reward: {}".format(total_reward))
+                print("An {}th episode is over. Reward: {}".format(episode, total_reward))
+                episode += 1
                 total_reward = 0
+                self.neg_reward_cnt = 0
             if len(self.replay_memory.memory) > self.params.batch_size:
                 loss = self._update_current_q_net()
             if step % self.params.target_update_freq == 0:
                 self._update_target_q_net()
         torch.save(self.target_q_net.state_dict(), self.model_path)
+        print("training Runtime : {} min".format((time.time() - start_time)/60))
 
     def _update_current_q_net(self):
         batch = self.replay_memory.sample(self.params.batch_size)

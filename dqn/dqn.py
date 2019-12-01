@@ -7,9 +7,9 @@ class DQN(nn.Module):
     def __init__(self, input_shape, num_of_actions):
         super().__init__()
 
-        self.conv_in = nn.Conv2d(input_shape, 16, kernel_size=3, stride=2)
-        self.conv_reduced = nn.Conv2d(16, 16, kernel_size=3, stride=1)
-        # self.conv1 = nn.Conv2d(input_shape, 16, kernel_size=5, stride=2)
+        # self.conv_in = nn.Conv2d(input_shape, 16, kernel_size=3, stride=2)
+        # self.conv_reduced = nn.Conv2d(16, 16, kernel_size=3, stride=1)
+        self.conv1 = nn.Conv2d(input_shape, 16, kernel_size=5, stride=2)
         self.batch_norm1 = nn.BatchNorm2d(16)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=2)
         self.batch_norm2 = nn.BatchNorm2d(32)
@@ -20,11 +20,11 @@ class DQN(nn.Module):
         self.linear2 = nn.Linear(256, num_of_actions)
 
     def forward(self, x):
-        conv_reduce_out1 = F.relu(self.batch_norm1(self.conv_in(x)))
-        conv_reduce_out2 = F.relu(self.batch_norm1(self.conv_reduced(conv_reduce_out1)))
-        # conv1_out = F.relu(self.batch_norm1(self.conv1(x)))
-        # conv2_out = F.relu(self.batch_norm2(self.conv2(conv1_out)))
-        conv2_out = F.relu(self.batch_norm2(self.conv2(conv_reduce_out2)))
+        # conv_reduce_out1 = F.relu(self.batch_norm1(self.conv_in(x)))
+        # conv_reduce_out2 = F.relu(self.batch_norm1(self.conv_reduced(conv_reduce_out1)))
+        conv1_out = F.relu(self.batch_norm1(self.conv1(x)))
+        conv2_out = F.relu(self.batch_norm2(self.conv2(conv1_out)))
+        # conv2_out = F.relu(self.batch_norm2(self.conv2(conv_reduce_out2)))
         conv3_out = F.relu(self.batch_norm3(self.conv3(conv2_out)))
 
         flattened = torch.flatten(conv3_out, start_dim=1)
