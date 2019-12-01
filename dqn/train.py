@@ -70,7 +70,7 @@ class DQNTrainer:
                                      dtype=torch.float32)
                 plot[0].append(episode)
                 plot[1].append(total_reward)
-                time_arr.append(start_time - time.time())
+                time_arr.append(time.time() - start_time)
                 if episode % 10 == 0:
                     plt.plot(plot[0], plot[1])
                     plt.savefig('../drive/My Drive/reward_plot_hueristic.png')
@@ -79,7 +79,7 @@ class DQNTrainer:
                     csv_writer.writerow(plot[1])
                     csv_writer.writerow(time_arr)
                     csv_file.close()
-                    print(start_time - time.time())
+                    print(time.time() - start_time)
                     print("save data")
                 print("An {}th episode is over. Reward: {}".format(episode, total_reward))
                 episode += 1
