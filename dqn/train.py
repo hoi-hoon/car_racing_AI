@@ -58,9 +58,9 @@ class DQNTrainer:
                 self.neg_reward_cnt = 0
 
             total_reward += reward
-                        
+
             if self.neg_reward_cnt > self.max_neg_step:
-                total_reward += punishment
+                total_reward += self.punishment
                 done = True
     
             if done:
