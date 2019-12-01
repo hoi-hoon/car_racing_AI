@@ -26,8 +26,6 @@ class EnvironmentWrapper(gym.Wrapper):
     def preprocess(self, state):
         preprocessed_state = to_grayscale(state)
         preprocessed_state = crop(preprocessed_state)
-        print(len(preprocessed_state))
-        print(preprocessed_state)
         return preprocessed_state
 
 
