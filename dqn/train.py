@@ -25,9 +25,10 @@ class DQNTrainer:
         env = gym.make('CarRacing-v0')
         self.environment = EnvironmentWrapper(env, self.params.skip_steps)
 
-        self.max_neg_step = 100
-        self.neg_reward_cnt = 0
-        self.punishment = -20.0
+        # hueristic
+        # self.max_neg_step = 100
+        # self.neg_reward_cnt = 0
+        # self.punishment = -20.0
 
     def run(self):
         state = torch.tensor(self.environment.reset(),
@@ -53,17 +54,17 @@ class DQNTrainer:
                                       dtype=torch.float32)
             self.replay_memory.add(state, action_index, reward, next_state, done)
             state = next_state
-            if reward < 0:
-                self.neg_reward_cnt += 1
-            else:
-                self.neg_reward_cnt = 0
+            # if reward < 0:
+            #     self.neg_reward_cnt += 1
+            # else:
+            #     self.neg_reward_cnt = 0
 
             total_reward += reward
 
-            if self.neg_reward_cnt > self.max_neg_step:
-                if total_reward < 500:
-                    total_reward += self.punishment
-                done = True
+            # if self.neg_reward_cnt > self.max_neg_step:
+            #     if total_reward < 500:
+            #         total_reward += self.punishment
+            #     done = True
     
             if done:
                 state = torch.tensor(self.environment.reset(),
@@ -74,8 +75,8 @@ class DQNTrainer:
                 time_arr.append(time.time() - start_time)
                 if episode % 10 == 0:
                     plt.plot(plot[0], plot[1])
-                    plt.savefig('../drive/My Drive/reward_plot_hueristic.png')
-                    csv_file = open("../drive/My Drive/reward_csv_hueristic.csv", "w", newline="\n")
+                    plt.savefig('../drive/My Drive/reward_plot_vanila.png')
+                    csv_file = open("../drive/My Drive/reward_csv_vanila.csv", "w", newline="\n")
                     csv_writer = csv.writer(csv_file)
                     csv_writer.writerow(plot[1])
                     csv_writer.writerow(time_arr)
@@ -85,7 +86,7 @@ class DQNTrainer:
                 print("An {}th episode is over. Reward: {}".format(episode, total_reward))
                 episode += 1
                 total_reward = 0
-                self.neg_reward_cnt = 0
+                # self.neg_reward_cnt = 0
             if len(self.replay_memory.memory) > self.params.batch_size:
                 loss = self._update_current_q_net()
             if step % self.params.target_update_freq == 0:
