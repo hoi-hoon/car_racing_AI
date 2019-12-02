@@ -83,7 +83,7 @@ class DQNTrainer:
                     csv_file.close()
                     print(time.time() - start_time)
                     print("save data")
-                print("An {}th episode is over. Reward: {}".format(episode, total_reward))
+                print("An {}th episode is over! Reward: {}".format(episode, total_reward))
                 episode += 1
                 total_reward = 0
                 # self.neg_reward_cnt = 0
